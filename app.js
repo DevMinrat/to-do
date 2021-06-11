@@ -9,21 +9,13 @@ const tasks = [
     _id: "5d2ca9e29c8a94095c1288e0",
     completed: false,
     body: "Aliquip cupidatat ex adipisicing veniam do tempor. Lorem nulla adipisicing et esse cupidatat qui deserunt in fugiat duis est qui. Est adipisicing ipsum qui cupidatat exercitation. Cupidatat aliqua deserunt id deserunt excepteur nostrud culpa eu voluptate excepteur. Cillum officia proident anim aliquip. Dolore veniam qui reprehenderit voluptate non id anim.\r\n",
-    title:
-      "Deserunt laborum id consectetur pariatur veniam occaecat occaecat tempor voluptate pariatur nulla reprehenderit ipsum.",
+    title: "Deserunt laborum id consectetur pariatur veniam.",
   },
   {
-    _id: "5d2ca9e2e03d40b3232496aa7",
+    _id: "5d2ca9e29c8a94095c1255e0",
     completed: true,
-    body: "Occaecat non ea quis occaecat ad culpa amet deserunt incididunt elit fugiat pariatur. Exercitation commodo culpa in veniam proident laboris in. Excepteur cupidatat eiusmod dolor consectetur exercitation nulla aliqua veniam fugiat irure mollit. Eu dolor dolor excepteur pariatur aute do do ut pariatur consequat reprehenderit deserunt.\r\n",
-    title: "Eu ea incididunt sunt consectetur fugiat non.",
-  },
-  {
-    _id: "5d2ca9e29c8a94095564788e0",
-    completed: false,
-    body: "Aliquip cupidatat ex adipisicing veniam do tempor. Lorem nulla adipisicing et esse cupidatat qui deserunt in fugiat duis est qui. Est adipisicing ipsum qui cupidatat exercitation. Cupidatat aliqua deserunt id deserunt excepteur nostrud culpa eu voluptate excepteur. Cillum officia proident anim aliquip. Dolore veniam qui reprehenderit voluptate non id anim.\r\n",
-    title:
-      "Deserunt laborum id consectetur pariatur veniam occaecat occaecat tempor voluptate pariatur nulla reprehenderit ipsum.",
+    body: "at eiusmod dolor consectetur exercitation nulla aliqua veniam fugiat irure mollit. Eu dolor dolor excepteur pariatur aute do do ut pariatur consequat reprehenderipidatat exercitation. Cupidatat aliqua deserunt id deserunt excepteur nostrud culpa eu voluptate excepteur. Cillum officia proident anim aliquip. Dolore veniam qui reprehenderit voluptate non id anim.\r\n",
+    title: "Dolore veniam qui reprehenderit.",
   },
 ];
 
@@ -41,12 +33,14 @@ const tasks = [
     inputTitle = form.elements.title,
     inputBody = form.elements.body;
   const emptyMessage = document.querySelector(".text-muted");
+  const uncompletedBtn = document.querySelector("#uncompleted-tab");
 
   //Events
   renderAllTasks(objOfTasks);
   form.addEventListener("submit", onFormSubmitHandler);
-  listContainer.addEventListener("click", onDeleteHandler);
+  listContainer.addEventListener("click", onDeleteCopleteHandler);
   checkTasks(objOfTasks);
+  uncompletedBtn.addEventListener("click", showUncompletedTasks);
 
   function renderAllTasks(tasksList) {
     if (!tasksList) {
@@ -77,7 +71,7 @@ const tasks = [
 
     const span = document.createElement("span");
     span.textContent = title;
-    span.style.fontWeight = "bold";
+    span.classList.add("font-weight-bold", "fs-1");
 
     const deleteBtn = document.createElement("button");
     deleteBtn.classList.add("btn", "btn-danger", "delete-btn");
@@ -88,7 +82,6 @@ const tasks = [
       "btn",
       "btn-success",
       "ml-auto",
-      "success-btn",
       "success-btn",
       "mr-1"
     );
@@ -110,7 +103,7 @@ const tasks = [
       bodyValue = inputBody.value;
 
     if (!titleValue || !bodyValue) {
-      alert("Введите данные в форму");
+      alert("Task empty!");
       return;
     }
 
@@ -139,7 +132,7 @@ const tasks = [
 
   function deleteTask(id) {
     const { title } = objOfTasks[id];
-    const isConfirm = confirm(`Удалить задачу: ${title}?`);
+    const isConfirm = confirm(`Delete task: ${title}?`);
 
     if (!isConfirm) return isConfirm;
     delete objOfTasks[id];
@@ -154,13 +147,22 @@ const tasks = [
     el.remove();
   }
 
-  function onDeleteHandler(e) {
+  function completeTaskFromHTML(par, id) {
+    objOfTasks[id].completed = true;
+
+    par.classList.add("list-group-item-success");
+  }
+
+  function onDeleteCopleteHandler(e) {
+    const parent = e.target.closest("[data-task-id]");
+    const id = parent.dataset.taskId;
+
     if (e.target.classList.contains("delete-btn")) {
-      const parent = e.target.closest("[data-task-id]");
-      const id = parent.dataset.taskId;
       const confirmed = deleteTask(id);
 
       deleteTaskFromHTML(confirmed, parent);
+    } else if (e.target.classList.contains("success-btn")) {
+      completeTaskFromHTML(parent, id);
     }
   }
 
@@ -178,5 +180,9 @@ const tasks = [
 
   function hideMessageOfNullTasks() {
     emptyMessage.style.display = "none";
+  }
+
+  function showUncompletedTasks() {
+    
   }
 })(tasks);

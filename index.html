@@ -10,17 +10,18 @@
   <title>Todo List</title>
 </head>
 
-<body>
+<body class="bg-light">
   <div class="form-section mt-5">
     <div class="container">
+      <h1 class="text-center mb-5 text-primary">ToDo List</h1>
       <div class="row">
         <div class="col col-8 mx-auto">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Add new task</h5>
+              <h5 class="card-title">Add Task</h5>
               <form name="addTask">
                 <input type="text" name="title" id="title" class="form-control" placeholder="Task title" />
-                <input type="text" name="body" id="body" class="form-control mt-3" placeholder="Task body" />
+                <textarea name="body" id="body" class="form-control mt-3" placeholder="Task body"></textarea>
                 <button type="submit" class="btn btn-primary mt-4">
                   Add task
                 </button>
@@ -31,31 +32,28 @@
       </div>
     </div>
   </div>
-  <div class="tasks-list-section mt-5">
-    <!-- <div class="container">
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button"
-            role="tab" aria-controls="home" aria-selected="true">Главная</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button"
-            role="tab" aria-controls="profile" aria-selected="false">Профиль</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button"
-            role="tab" aria-controls="contact" aria-selected="false">Контакт</button>
-        </li>
-      </ul>
-      <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">...</div>
-        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
-        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
-      </div> -->
-    <ul class="list-group">
-      <p class="mt-2 text-muted">Список задач пуст!</p>
+  <div class="container mt-5">
+
+    <ul class="nav nav-tabs" id="myTab">
+      <li class="nav-item">
+        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" type="button" aria-selected="true">All
+          tasks</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="uncompleted-tab" data-bs-toggle="tab" type="button"
+          aria-selected="false">Unfinished tasks</button>
+      </li>
     </ul>
+    <div class="tasks-list-section">
+      <ul class="list-group">
+        <p class="mt-2 text-muted">The task list is empty!</p>
+      </ul>
+    </div>
+
   </div>
+
+  <p class="text-center mt-5">Created by <a href="#">DevMinrat</a></p>
+
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
@@ -66,7 +64,6 @@
 </html>
 <!-- 
 
-2. В каждый элемент li добавить кнопку которая будет делать задачу выполненной. завершенные задачи должны быть подсвечены любым цветом.
 
 3. Добавить функционал отображения незавершенных задач и всех задач. т.е у вас будет две кнопки над таблицей 1-я "показать все задачи" и 2-я "показать незавершенные задачи", определить завершена задача или нет можно по полю completed в объекте задачи.  По умолчанию при загрузке отображаются все задачи. 
 
