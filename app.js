@@ -182,6 +182,8 @@ const tasks = [
     parents.forEach((el) => {
       const btn = el.querySelector(".success-btn");
 
+      delCompleteTaskUnfinished(el);
+
       styleCompleteTask(el, id, btn);
     });
   }
@@ -197,6 +199,12 @@ const tasks = [
 
       btn.classList.remove("alert-secondary");
       btn.textContent = "Complete Task";
+    }
+  }
+
+  function delCompleteTaskUnfinished(task) {
+    if (task.closest(".list-group--unfinished")) {
+      task.remove();
     }
   }
 
@@ -231,4 +239,29 @@ const tasks = [
   function hideMessageOfNullTasks() {
     emptyMessage.style.display = "none";
   }
+
+  const mutationObserver = new MutationObserver(function (mutations) {
+    mutations.forEach((mutation) => {
+      if (
+        mutation.target.localName == "li" &&
+        mutation.target.classList.contains("list-group-item-success")
+      ) {
+        listContainer.append(mutation.target);
+        console.log(1);
+      } else if (
+        mutation.target.localName == "li" &&
+        !mutation.target.classList.contains("list-group-item-success")
+      ) {
+        listContainer.prepend(mutation.target);
+        unfinListContainer.prepend(mutation.target.cloneNode(true));
+        console.log(2);
+      }
+    });
+  });
+
+  mutationObserver.observe(listContainer, {
+    attributes: true,
+    childList: true,
+    subtree: true,
+  });
 })(tasks);
