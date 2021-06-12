@@ -26,23 +26,24 @@ const tasks = [
   }, {});
 
   // Elements UI
+  const myTasks = document.querySelector("#myTabContent");
   const listContainer = document.querySelector(
-    ".tasks-list-section .list-group"
-  );
+      ".tasks-list-section .list-group--all"
+    ),
+    unfinListContainer = document.querySelector(
+      ".tasks-list-section .list-group--unfinished"
+    );
   const form = document.forms.addTask,
     inputTitle = form.elements.title,
     inputBody = form.elements.body;
   const emptyMessage = document.querySelector(".text-muted");
-  const AlldBtn = document.querySelector("#all-tab"),
-    uncompletedBtn = document.querySelector("#uncompleted-tab");
 
   //Events
   renderAllTasks(objOfTasks);
   form.addEventListener("submit", onFormSubmitHandler);
   listContainer.addEventListener("click", onDeleteCopleteHandler);
+  unfinListContainer.addEventListener("click", onDeleteCopleteHandler);
   checkTasks(objOfTasks);
-  uncompletedBtn.addEventListener("click", showUncompletedTasks);
-  AlldBtn.addEventListener("click", showAllTasks);
 
   function renderAllTasks(tasksList) {
     if (!tasksList) {
@@ -51,13 +52,25 @@ const tasks = [
     }
 
     const fragment = [];
-    // const fragment = document.createDocumentFragment();
+    const unfinFragment = [];
+
     Object.values(tasksList).forEach((task) => {
       const li = listItemTemplate(task);
+      if (!li.classList.contains("list-group-item-success")) {
+        const clonLi = li.cloneNode(true);
+        unfinFragment.push(clonLi);
+      }
       fragment.push(li);
     });
 
+    fragment.sort((a) => {
+      if (!a.classList.contains("list-group-item-success")) {
+        return -1;
+      }
+    });
+
     listContainer.append(...fragment);
+    unfinListContainer.append(...unfinFragment);
   }
 
   function listItemTemplate({ _id, title, body, completed } = {}) {
@@ -91,7 +104,7 @@ const tasks = [
       "mr-1"
     );
 
-    toogleStyleCompleteTask(li, _id, successBtn);
+    styleCompleteTask(li, _id, successBtn);
 
     const article = document.createElement("p");
     article.classList.add("mt-2", "w-100");
@@ -117,6 +130,7 @@ const tasks = [
     const listItem = listItemTemplate(task);
 
     listContainer.prepend(listItem);
+    unfinListContainer.prepend(listItem.cloneNode(true));
 
     form.reset();
   }
@@ -148,23 +162,10 @@ const tasks = [
     return isConfirm;
   }
 
-  function deleteTaskFromHTML(confirmed, el) {
+  function deleteTaskFromHTML(confirmed, el, cloneEl) {
     if (!confirmed) return;
     el.remove();
-  }
-
-  function toogleStyleCompleteTask(par, id, target) {
-    if (objOfTasks[id].completed) {
-      par.classList.add("list-group-item-success");
-
-      target.classList.add("alert-secondary");
-      target.textContent = "Uncomplete";
-    } else if (!objOfTasks[id].completed) {
-      par.classList.remove("list-group-item-success");
-
-      target.classList.remove("alert-secondary");
-      target.textContent = "Complete task";
-    }
+    cloneEl.remove();
   }
 
   function changeCompleteTask(id) {
@@ -175,17 +176,41 @@ const tasks = [
     }
   }
 
+  function toogleStyleCompleteTask(pars, id) {
+    pars.forEach((el) => {
+      const btn = el.querySelector(".success-btn");
+
+      styleCompleteTask(el, id, btn);
+    });
+  }
+
+  function styleCompleteTask(item, id, btn) {
+    if (objOfTasks[id].completed) {
+      item.classList.add("list-group-item-success");
+
+      btn.classList.add("alert-secondary");
+      btn.textContent = "Uncomplete";
+    } else if (!objOfTasks[id].completed) {
+      item.classList.remove("list-group-item-success");
+
+      btn.classList.remove("alert-secondary");
+      btn.textContent = "Complete Task";
+    }
+  }
+
   function onDeleteCopleteHandler(e) {
     const parent = e.target.closest("[data-task-id]");
     const id = parent.dataset.taskId;
 
+    const elems = myTasks.querySelectorAll(`[data-task-id = "${id}"]`);
+
     if (e.target.classList.contains("delete-btn")) {
       const confirmed = deleteTask(id);
 
-      deleteTaskFromHTML(confirmed, parent);
+      deleteTaskFromHTML(confirmed, parentAll, cloneParent);
     } else if (e.target.classList.contains("success-btn")) {
       changeCompleteTask(id);
-      toogleStyleCompleteTask(parent, id, e.target);
+      toogleStyleCompleteTask(elems, id);
     }
   }
 
@@ -203,23 +228,5 @@ const tasks = [
 
   function hideMessageOfNullTasks() {
     emptyMessage.style.display = "none";
-  }
-
-  const allLi = document.querySelectorAll(".list-group-item");
-
-  function showUncompletedTasks() {
-    allLi.forEach((li) => {
-      if (li.classList.contains("list-group-item-success")) {
-        li.classList.add("d-none");
-        li.classList.remove("d-flex");
-      }
-    });
-  }
-
-  function showAllTasks() {
-    allLi.forEach((li) => {
-      li.classList.remove("d-none");
-      li.classList.add("d-flex");
-    });
   }
 })(tasks);

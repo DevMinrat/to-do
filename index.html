@@ -34,21 +34,35 @@
   </div>
   <div class="container mt-5">
 
-    <ul class="nav nav-tabs" id="myTab">
-      <li class="nav-item">
-        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" type="button" aria-selected="true">All
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab"
+          aria-controls="all" aria-selected="true">All
           tasks</button>
       </li>
-      <li class="nav-item">
-        <button class="nav-link" id="uncompleted-tab" data-bs-toggle="tab" type="button"
-          aria-selected="false">Unfinished tasks</button>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="unfinished-tab" data-bs-toggle="tab" data-bs-target="#unfinished" type="button"
+          role="tab" aria-controls="unfinished" aria-selected="false">Unfinished tasks</button>
       </li>
     </ul>
-    <div class="tasks-list-section">
-      <ul class="list-group">
-        <p class="mt-2 text-muted">The task list is empty!</p>
-      </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+        <div class="tasks-list-section">
+          <ul class="list-group list-group--all">
+            <p class="mt-2 text-muted">The task list is empty!</p>
+          </ul>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="unfinished" role="tabpanel" aria-labelledby="unfinished-tab">
+        <div class="tasks-list-section">
+          <ul class="list-group list-group--unfinished">
+            <!-- <p class="mt-2 text-muted">The task list is empty!</p> -->
+          </ul>
+        </div>
+      </div>
+
     </div>
+
 
   </div>
 
@@ -68,7 +82,7 @@
 
 *Задача со звездочкой. При завершении задачи в разделе "незавершенные задачи" она должна от туда пропадать и быть видна в разделе "все задачи" при этом во всех задачах завершенные задачи могут быть восстановлены. Также в разделе "все задачи" завершенные задачи должны быть в самом низу после открытых задач.  
 
-1) Добавить функционал переключения между завершением и возобновлением задачи
+
 2) При завершении задачи убирать ее из вкладки "Завершенные задачи"
 3) При отсутствии задач в Завершенном блоке выводить сообщение "нет задач" (можно написать Функцию которая будет следить за свойством Комплитед и вызывать функцию шоумессаге)
 
