@@ -90,7 +90,8 @@ const tasks = [
       "success-btn",
       "mr-1"
     );
-    successBtn.textContent = "Complete task";
+
+    toogleStyleCompleteTask(li, _id, successBtn);
 
     const article = document.createElement("p");
     article.classList.add("mt-2", "w-100");
@@ -152,10 +153,26 @@ const tasks = [
     el.remove();
   }
 
-  function completeTaskFromHTML(par, id) {
-    objOfTasks[id].completed = true;
+  function toogleStyleCompleteTask(par, id, target) {
+    if (objOfTasks[id].completed) {
+      par.classList.add("list-group-item-success");
 
-    par.classList.add("list-group-item-success");
+      target.classList.add("alert-secondary");
+      target.textContent = "Uncomplete";
+    } else if (!objOfTasks[id].completed) {
+      par.classList.remove("list-group-item-success");
+
+      target.classList.remove("alert-secondary");
+      target.textContent = "Complete task";
+    }
+  }
+
+  function changeCompleteTask(id) {
+    if (!objOfTasks[id].completed) {
+      objOfTasks[id].completed = true;
+    } else if (objOfTasks[id].completed) {
+      objOfTasks[id].completed = false;
+    }
   }
 
   function onDeleteCopleteHandler(e) {
@@ -167,7 +184,8 @@ const tasks = [
 
       deleteTaskFromHTML(confirmed, parent);
     } else if (e.target.classList.contains("success-btn")) {
-      completeTaskFromHTML(parent, id);
+      changeCompleteTask(id);
+      toogleStyleCompleteTask(parent, id, e.target);
     }
   }
 
