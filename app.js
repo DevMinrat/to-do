@@ -162,10 +162,12 @@ const tasks = [
     return isConfirm;
   }
 
-  function deleteTaskFromHTML(confirmed, el, cloneEl) {
+  function deleteTaskFromHTML(confirmed, parents) {
     if (!confirmed) return;
-    el.remove();
-    cloneEl.remove();
+
+    parents.forEach((el) => {
+      el.remove();
+    });
   }
 
   function changeCompleteTask(id) {
@@ -176,8 +178,8 @@ const tasks = [
     }
   }
 
-  function toogleStyleCompleteTask(pars, id) {
-    pars.forEach((el) => {
+  function toogleStyleCompleteTask(parents, id) {
+    parents.forEach((el) => {
       const btn = el.querySelector(".success-btn");
 
       styleCompleteTask(el, id, btn);
@@ -207,7 +209,7 @@ const tasks = [
     if (e.target.classList.contains("delete-btn")) {
       const confirmed = deleteTask(id);
 
-      deleteTaskFromHTML(confirmed, parentAll, cloneParent);
+      deleteTaskFromHTML(confirmed, elems);
     } else if (e.target.classList.contains("success-btn")) {
       changeCompleteTask(id);
       toogleStyleCompleteTask(elems, id);
