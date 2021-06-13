@@ -26,24 +26,23 @@ const tasks = [
   }, {});
 
   // Elements UI
-  const myTasks = document.querySelector("#myTabContent");
   const listContainer = document.querySelector(
-      ".tasks-list-section .list-group--all"
-    ),
-    unfinListContainer = document.querySelector(
-      ".tasks-list-section .list-group--unfinished"
-    );
+    ".tasks-list-section .list-group"
+  );
   const form = document.forms.addTask,
     inputTitle = form.elements.title,
     inputBody = form.elements.body;
-  const emptyMessage = document.querySelector(".text-muted");
+  // const emptyMessage = document.querySelector(".text-muted");
+  const tabs = document.querySelector("#myTab"),
+    navBtns = document.querySelectorAll(".nav-link");
+  const showAllBtn = document.querySelector("#all-tab"),
+    unfinishedBtn = document.querySelector("#unfinished-tab");
 
   //Events
   renderAllTasks(objOfTasks);
   form.addEventListener("submit", onFormSubmitHandler);
   listContainer.addEventListener("click", onDeleteCopleteHandler);
-  unfinListContainer.addEventListener("click", onDeleteCopleteHandler);
-  checkTasks(objOfTasks);
+  tabs.addEventListener("click", onFilterTasksHandler);
 
   function renderAllTasks(tasksList) {
     if (!tasksList) {
@@ -52,14 +51,10 @@ const tasks = [
     }
 
     const fragment = [];
-    const unfinFragment = [];
 
     Object.values(tasksList).forEach((task) => {
       const li = listItemTemplate(task);
-      if (!li.classList.contains("list-group-item-success")) {
-        const clonLi = li.cloneNode(true);
-        unfinFragment.push(clonLi);
-      }
+
       fragment.push(li);
     });
 
@@ -70,8 +65,9 @@ const tasks = [
     });
 
     listContainer.append(...fragment);
-    unfinListContainer.append(...unfinFragment);
   }
+
+  // Rendering task DOM-element
 
   function listItemTemplate({ _id, title, body, completed } = {}) {
     const li = document.createElement("li");
@@ -115,6 +111,8 @@ const tasks = [
     return li;
   }
 
+  // Add new task functions
+
   function onFormSubmitHandler(event) {
     event.preventDefault();
 
@@ -130,7 +128,6 @@ const tasks = [
     const listItem = listItemTemplate(task);
 
     listContainer.prepend(listItem);
-    unfinListContainer.prepend(listItem.cloneNode(true));
 
     form.reset();
   }
@@ -145,10 +142,10 @@ const tasks = [
 
     objOfTasks[newTask._id] = newTask;
 
-    checkTasks(objOfTasks);
-
     return newTask;
   }
+
+  // Delete Task
 
   function deleteTask(id) {
     const { title } = objOfTasks[id];
@@ -157,20 +154,17 @@ const tasks = [
     if (!isConfirm) return isConfirm;
     delete objOfTasks[id];
 
-    checkTasks(objOfTasks);
-
     return isConfirm;
   }
 
-  function deleteTaskFromHTML(confirmed, parents) {
+  function deleteTaskFromHTML(confirmed, task) {
     if (!confirmed) return;
-
-    parents.forEach((el) => {
-      el.remove();
-    });
+    task.remove();
   }
 
-  function changeCompleteTask(id) {
+  // Complete task and sort
+
+  function changeCompleteSortTask(id) {
     if (!objOfTasks[id].completed) {
       objOfTasks[id].completed = true;
     } else if (objOfTasks[id].completed) {
@@ -178,90 +172,102 @@ const tasks = [
     }
   }
 
-  function toogleStyleCompleteTask(parents, id) {
-    parents.forEach((el) => {
-      const btn = el.querySelector(".success-btn");
-
-      delCompleteTaskUnfinished(el);
-
-      styleCompleteTask(el, id, btn);
-    });
-  }
-
-  function styleCompleteTask(item, id, btn) {
+  function styleCompleteTask(task, id, btn) {
     if (objOfTasks[id].completed) {
-      item.classList.add("list-group-item-success");
+      task.classList.add("list-group-item-success");
 
       btn.classList.add("alert-secondary");
       btn.textContent = "Uncomplete";
+
+      task.dataset.taskCompleted = true;
+      listContainer.append(task);
     } else if (!objOfTasks[id].completed) {
-      item.classList.remove("list-group-item-success");
+      task.classList.remove("list-group-item-success");
 
       btn.classList.remove("alert-secondary");
       btn.textContent = "Complete Task";
+
+      task.dataset.taskCompleted = false;
+      listContainer.prepend(task);
     }
   }
 
-  function delCompleteTaskUnfinished(task) {
-    if (task.closest(".list-group--unfinished")) {
-      task.remove();
-    }
-  }
+  // Handler on delete or complete task
 
   function onDeleteCopleteHandler(e) {
     const parent = e.target.closest("[data-task-id]");
     const id = parent.dataset.taskId;
 
-    const elems = myTasks.querySelectorAll(`[data-task-id = "${id}"]`);
-
     if (e.target.classList.contains("delete-btn")) {
       const confirmed = deleteTask(id);
 
-      deleteTaskFromHTML(confirmed, elems);
+      deleteTaskFromHTML(confirmed, parent);
     } else if (e.target.classList.contains("success-btn")) {
-      changeCompleteTask(id);
-      toogleStyleCompleteTask(elems, id);
+      changeCompleteSortTask(id);
+      styleCompleteTask(parent, id, e.target);
+      removeCompleteTask(parent);
     }
   }
 
-  function checkTasks(obj) {
-    if (Object.keys(obj).length === 0) {
-      showMessageOfNullTasks();
-    } else {
-      hideMessageOfNullTasks();
+  // Remove complete task on an unfinished section
+
+  function removeCompleteTask(task) {
+    if (!showAllBtn.classList.contains("active")) {
+      hideTask(task);
     }
   }
 
-  function showMessageOfNullTasks() {
-    emptyMessage.style.display = "block";
+  // Filter Tasks
+
+  function onFilterTasksHandler(e) {
+    const target = e.target;
+    const listTasks = document.querySelectorAll(".list-group-item");
+
+    if (target.tagName === "BUTTON" && target.dataset.bsToggle === "tab") {
+      changeActiveTab(navBtns, target);
+      showUnfinishedTasks(target, listTasks);
+      showAllTasks(target, listTasks);
+    }
   }
 
-  function hideMessageOfNullTasks() {
-    emptyMessage.style.display = "none";
+  function showUnfinishedTasks(target, tasks) {
+    if (target.dataset.bsTarget === "unfinished") {
+      tasks.forEach((task) => {
+        if (task.dataset.taskCompleted === "true") {
+          hideTask(task);
+        }
+      });
+    }
   }
 
-  const mutationObserver = new MutationObserver(function (mutations) {
-    mutations.forEach((mutation) => {
-      if (
-        mutation.target.localName == "li" &&
-        mutation.target.classList.contains("list-group-item-success")
-      ) {
-        listContainer.append(mutation.target);
-        console.log(1);
-      } else if (
-        mutation.target.localName == "li" &&
-        !mutation.target.classList.contains("list-group-item-success")
-      ) {
-        listContainer.prepend(mutation.target);
-        unfinListContainer.prepend(mutation.target.cloneNode(true));
-        console.log(2);
+  function showAllTasks(target, tasks) {
+    if (target.dataset.bsTarget === "all") {
+      tasks.forEach((task) => {
+        showTask(task);
+      });
+    }
+  }
+
+  function changeActiveTab(btns, target) {
+    btns.forEach((btn) => {
+      if (btn === target) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
       }
     });
-  });
+  }
 
-  mutationObserver.observe(listContainer, {
-    attributes: true,
-    childList: true,
-    subtree: true,
-  });
+  function hideTask(task) {
+    task.classList.add("d-none");
+    task.classList.remove("d-flex");
+  }
+
+  function showTask(task) {
+    task.classList.remove("d-none");
+    task.classList.add("d-flex");
+  }
+
+  // if unfinished click show unfinished
+  // if All click show all
 })(tasks);
