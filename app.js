@@ -32,10 +32,10 @@ const tasks = [
   const form = document.forms.addTask,
     inputTitle = form.elements.title,
     inputBody = form.elements.body;
-  // const emptyMessage = document.querySelector(".text-muted");
   const tabs = document.querySelector("#myTab"),
     navBtns = document.querySelectorAll(".nav-link"),
     showAllBtn = document.querySelector("#all-tab");
+  const emptyMessage = document.querySelector("#text-empty");
 
   //Events
   renderAllTasks(objOfTasks);
@@ -258,4 +258,46 @@ const tasks = [
     task.classList.remove("d-none");
     task.classList.add("d-flex");
   }
+
+  // Show message if task list is empty
+
+  showMessageOfEmptyList();
+
+  function showMessageOfEmptyList() {
+    const listTasks = document.querySelectorAll(".list-group-item");
+
+    if (checkHiddenTasks(listTasks)) {
+      emptyMessage.classList.add("d-none");
+    } else {
+      emptyMessage.classList.remove("d-none");
+    }
+  }
+
+  function checkHiddenTasks(tasksList) {
+    let flag = false;
+
+    tasksList.forEach((task) => {
+      if (!task.classList.contains("d-none")) {
+        flag = true;
+      }
+    });
+
+    return flag;
+  }
+
+  // Observe task for mutations
+
+  const config = {
+    attributes: true,
+    childList: true,
+    subtree: true,
+  };
+
+  const mutationHandler = (mutations) => {
+    showMessageOfEmptyList();
+  };
+
+  const mutationObserver = new MutationObserver(mutationHandler);
+
+  mutationObserver.observe(listContainer, config);
 })(tasks);
