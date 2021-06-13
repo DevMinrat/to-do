@@ -34,9 +34,8 @@ const tasks = [
     inputBody = form.elements.body;
   // const emptyMessage = document.querySelector(".text-muted");
   const tabs = document.querySelector("#myTab"),
-    navBtns = document.querySelectorAll(".nav-link");
-  const showAllBtn = document.querySelector("#all-tab"),
-    unfinishedBtn = document.querySelector("#unfinished-tab");
+    navBtns = document.querySelectorAll(".nav-link"),
+    showAllBtn = document.querySelector("#all-tab");
 
   //Events
   renderAllTasks(objOfTasks);
@@ -179,7 +178,6 @@ const tasks = [
       btn.classList.add("alert-secondary");
       btn.textContent = "Uncomplete";
 
-      task.dataset.taskCompleted = true;
       listContainer.append(task);
     } else if (!objOfTasks[id].completed) {
       task.classList.remove("list-group-item-success");
@@ -187,7 +185,6 @@ const tasks = [
       btn.classList.remove("alert-secondary");
       btn.textContent = "Complete Task";
 
-      task.dataset.taskCompleted = false;
       listContainer.prepend(task);
     }
   }
@@ -225,27 +222,21 @@ const tasks = [
 
     if (target.tagName === "BUTTON" && target.dataset.bsToggle === "tab") {
       changeActiveTab(navBtns, target);
-      showUnfinishedTasks(target, listTasks);
-      showAllTasks(target, listTasks);
+      showTasks(target, listTasks);
     }
   }
 
-  function showUnfinishedTasks(target, tasks) {
-    if (target.dataset.bsTarget === "unfinished") {
-      tasks.forEach((task) => {
-        if (task.dataset.taskCompleted === "true") {
-          hideTask(task);
-        }
-      });
-    }
-  }
+  function showTasks(target, tasks) {
+    tasks.forEach((task) => {
+      const id = task.dataset.taskId;
+      const tabsTarget = target.dataset.bsTarget;
 
-  function showAllTasks(target, tasks) {
-    if (target.dataset.bsTarget === "all") {
-      tasks.forEach((task) => {
+      if (tabsTarget === "unfinished" && objOfTasks[id].completed) {
+        hideTask(task);
+      } else if (tabsTarget === "all") {
         showTask(task);
-      });
-    }
+      }
+    });
   }
 
   function changeActiveTab(btns, target) {
@@ -267,7 +258,4 @@ const tasks = [
     task.classList.remove("d-none");
     task.classList.add("d-flex");
   }
-
-  // if unfinished click show unfinished
-  // if All click show all
 })(tasks);
