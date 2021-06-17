@@ -2,18 +2,21 @@ const tasks = [
   {
     _id: "5d2ca9e2e03d40b326596aa7",
     completed: true,
+    deadline: "2021-11-31T08:59:22",
     body: "Occaecat non ea quis occaecat ad culpa amet deserunt incididunt elit fugiat pariatur. Exercitation commodo culpa in veniam proident laboris in. Excepteur cupidatat eiusmod dolor consectetur exercitation nulla aliqua veniam fugiat irure mollit. Eu dolor dolor excepteur pariatur aute do do ut pariatur consequat reprehenderit deserunt.\r\n",
     title: "Eu ea incididunt sunt consectetur fugiat non.",
   },
   {
     _id: "5d2ca9e29c8a94095c1288e0",
     completed: false,
+    deadline: "2021-10-22T01:59:41",
     body: "Aliquip cupidatat ex adipisicing veniam do tempor. Lorem nulla adipisicing et esse cupidatat qui deserunt in fugiat duis est qui. Est adipisicing ipsum qui cupidatat exercitation. Cupidatat aliqua deserunt id deserunt excepteur nostrud culpa eu voluptate excepteur. Cillum officia proident anim aliquip. Dolore veniam qui reprehenderit voluptate non id anim.\r\n",
     title: "Deserunt laborum id consectetur pariatur veniam.",
   },
   {
     _id: "5d2ca9e29c8a94095c1255e0",
     completed: true,
+    deadline: "2021-05-14T13:59:55",
     body: "at eiusmod dolor consectetur exercitation nulla aliqua veniam fugiat irure mollit. Eu dolor dolor excepteur pariatur aute do do ut pariatur consequat reprehenderipidatat exercitation. Cupidatat aliqua deserunt id deserunt excepteur nostrud culpa eu voluptate excepteur. Cillum officia proident anim aliquip. Dolore veniam qui reprehenderit voluptate non id anim.\r\n",
     title: "Dolore veniam qui reprehenderit.",
   },
@@ -31,7 +34,8 @@ const tasks = [
   );
   const form = document.forms.addTask,
     inputTitle = form.elements.title,
-    inputBody = form.elements.body;
+    inputBody = form.elements.body,
+    dateTime = form.elements.datetime;
   const tabs = document.querySelector("#myTab"),
     navBtns = document.querySelectorAll(".nav-link"),
     showAllBtn = document.querySelector("#all-tab");
@@ -68,7 +72,7 @@ const tasks = [
 
   // Rendering task DOM-element
 
-  function listItemTemplate({ _id, title, body, completed } = {}) {
+  function listItemTemplate({ _id, title, body, completed, deadline } = {}) {
     const li = document.createElement("li");
     li.classList.add(
       "list-group-item",
@@ -86,18 +90,23 @@ const tasks = [
     span.textContent = title;
     span.classList.add("font-weight-bold", "fs-1");
 
+    const leftTime = document.createElement("span");
+    leftTime.classList.add(
+      "text-monospace",
+      "border",
+      "border-secondary",
+      "p-1",
+      "deadline"
+    );
+
+    setDeadline(deadline, leftTime);
+
     const deleteBtn = document.createElement("button");
-    deleteBtn.classList.add("btn", "btn-danger", "delete-btn");
+    deleteBtn.classList.add("btn", "btn-danger", "delete-btn", "ml-1");
     deleteBtn.textContent = "Delete task";
 
     const successBtn = document.createElement("button");
-    successBtn.classList.add(
-      "btn",
-      "btn-success",
-      "ml-auto",
-      "success-btn",
-      "mr-1"
-    );
+    successBtn.classList.add("btn", "btn-success", "ml-auto", "success-btn");
 
     styleCompleteTask(li, _id, successBtn);
 
@@ -105,7 +114,7 @@ const tasks = [
     article.classList.add("mt-2", "w-100");
     article.textContent = body;
 
-    li.append(span, article, successBtn, deleteBtn);
+    li.append(span, article, leftTime, successBtn, deleteBtn);
 
     return li;
   }
@@ -116,14 +125,15 @@ const tasks = [
     event.preventDefault();
 
     const titleValue = inputTitle.value,
-      bodyValue = inputBody.value;
+      bodyValue = inputBody.value,
+      dateTimeValue = dateTime.value;
 
     if (!titleValue || !bodyValue) {
       alert("Task empty!");
       return;
     }
 
-    const task = createNewTask(titleValue, bodyValue);
+    const task = createNewTask(titleValue, bodyValue, dateTimeValue);
     const listItem = listItemTemplate(task);
 
     listContainer.prepend(listItem);
@@ -131,11 +141,12 @@ const tasks = [
     form.reset();
   }
 
-  function createNewTask(title, body) {
+  function createNewTask(title, body, dateTime) {
     const newTask = {
       title,
       body,
       completed: false,
+      deadline: dateTime,
       _id: `task-${Math.random()}`,
     };
 
@@ -203,6 +214,8 @@ const tasks = [
       changeCompleteSortTask(id);
       styleCompleteTask(parent, id, e.target);
       removeCompleteTask(parent);
+
+      console.log(dateTime.value);
     }
   }
 
@@ -292,12 +305,52 @@ const tasks = [
     childList: true,
     subtree: true,
   };
-
   const mutationHandler = (mutations) => {
     showMessageOfEmptyList();
   };
-
   const mutationObserver = new MutationObserver(mutationHandler);
-
   mutationObserver.observe(listContainer, config);
+
+  // Set deadline
+
+  function setDeadline(time, element) {
+    let countDownDate = new Date(time);
+    console.dir(countDownDate);
+
+    if (countDownDate == "Invalid Date") {
+      element.textContent = "Timeless";
+      element.classList.add("text-muted");
+      element.classList.remove("border");
+      return;
+    }
+
+    const countdownfunction = setInterval(function () {
+      let now = Date.now();
+
+      let distance = countDownDate - now;
+
+      let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      let hours = Math.floor(
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      if (seconds < 10) {
+        seconds = `0${seconds}`;
+      }
+
+      element.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+      if (distance < 86400000) {
+        element.classList.add("alert-warning", "border-warning");
+      }
+
+      if (distance < 0) {
+        clearInterval(countdownfunction);
+        element.textContent = "EXPIRED";
+        element.classList.add("alert-danger", "border-danger");
+      }
+    }, 1000);
+  }
 })(tasks);
