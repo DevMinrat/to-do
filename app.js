@@ -15,7 +15,7 @@ const tasks = [
   },
   {
     _id: "5d2ca9e29c8a94095c1255e0",
-    completed: true,
+    completed: false,
     deadline: "2021-05-14T13:59:55",
     body: "at eiusmod dolor consectetur exercitation nulla aliqua veniam fugiat irure mollit. Eu dolor dolor excepteur pariatur aute do do ut pariatur consequat reprehenderipidatat exercitation. Cupidatat aliqua deserunt id deserunt excepteur nostrud culpa eu voluptate excepteur. Cillum officia proident anim aliquip. Dolore veniam qui reprehenderit voluptate non id anim.\r\n",
     title: "Dolore veniam qui reprehenderit.",
@@ -99,7 +99,7 @@ const tasks = [
       "deadline"
     );
 
-    setDeadline(deadline, leftTime);
+    setDeadline(li, deadline, leftTime, completed);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.classList.add("btn", "btn-danger", "delete-btn", "ml-1");
@@ -313,9 +313,8 @@ const tasks = [
 
   // Set deadline
 
-  function setDeadline(time, element) {
+  function setDeadline(parent, time, element, completed) {
     let countDownDate = new Date(time);
-    console.dir(countDownDate);
 
     if (countDownDate == "Invalid Date") {
       element.textContent = "Timeless";
@@ -324,10 +323,8 @@ const tasks = [
       return;
     }
 
-    const countdownfunction = setInterval(function () {
-      let now = Date.now();
-
-      let distance = countDownDate - now;
+    const countDownFunction = setInterval(function () {
+      let distance = getDate(countDownDate);
 
       let days = Math.floor(distance / (1000 * 60 * 60 * 24));
       let hours = Math.floor(
@@ -346,11 +343,38 @@ const tasks = [
         element.classList.add("alert-warning", "border-warning");
       }
 
-      if (distance < 0) {
-        clearInterval(countdownfunction);
-        element.textContent = "EXPIRED";
-        element.classList.add("alert-danger", "border-danger");
-      }
+      stylingExpiredTask(distance, countDownFunction, element, parent);
+
+      stopIntervalCompletedTask(element, completed);
     }, 1000);
+  }
+
+  function getDate(countDownDate) {
+    let now = Date.now();
+    let distance = countDownDate - now;
+
+    return distance;
+  }
+
+  function stylingExpiredTask(distance, timeFunc, elem, parent) {
+    if (distance < 0) {
+      clearInterval(timeFunc);
+      elem.textContent = "EXPIRED";
+      elem.classList.add("alert-danger", "border-danger");
+      parent.classList.add("list-group-item-dark");
+      parent.classList.remove("list-group-item-success");
+
+      parent.parentElement.append(parent);
+
+      return;
+    }
+  }
+
+  function stopIntervalCompletedTask(element, completed, timeFunc) {
+    if (completed) {
+      clearInterval(timeFunc);
+      element.textContent = "Completed";
+      return;
+    }
   }
 })(tasks);
