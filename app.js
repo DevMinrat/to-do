@@ -374,8 +374,6 @@ const tasks = [
       task.classList.remove("list-group-item-success");
       task.classList.add("list-group-item-dark");
 
-      task.parentElement.append(task);
-
       return;
     }
   }
