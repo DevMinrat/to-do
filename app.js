@@ -213,7 +213,7 @@ const tasks = [
 
       deleteTaskFromHTML(confirmed, task);
     } else if (e.target.classList.contains("success-btn")) {
-      completeTask(task, deadline);
+      changeDeadlineTask(task, deadline);
       changeCompleteSortTask(id);
       styleCompleteTask(task, id, e.target);
       removeCompleteTask(task);
@@ -380,7 +380,7 @@ const tasks = [
     }
   }
 
-  function completeTask(task, deadline) {
+  function changeDeadlineTask(task, deadline) {
     if (!task.classList.contains("list-group-item-success")) {
       deadline.classList.remove(
         "alert-danger",
