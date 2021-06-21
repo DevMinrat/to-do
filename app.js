@@ -185,6 +185,7 @@ const tasks = [
   function styleCompleteTask(task, id, btn) {
     if (objOfTasks[id].completed) {
       task.classList.add("list-group-item-success");
+      task.classList.remove("list-group-item-dark");
 
       btn.classList.add("alert-secondary");
       btn.textContent = "Uncomplete";
@@ -203,19 +204,19 @@ const tasks = [
   // Handler on delete or complete task
 
   function onDeleteCopleteHandler(e) {
-    const parent = e.target.closest("[data-task-id]");
-    const id = parent.dataset.taskId;
+    const task = e.target.closest("[data-task-id]");
+    const id = task.dataset.taskId;
+    const deadline = task.querySelector(".deadline");
 
     if (e.target.classList.contains("delete-btn")) {
       const confirmed = deleteTask(id);
 
-      deleteTaskFromHTML(confirmed, parent);
+      deleteTaskFromHTML(confirmed, task);
     } else if (e.target.classList.contains("success-btn")) {
+      completeTask(task, deadline);
       changeCompleteSortTask(id);
-      styleCompleteTask(parent, id, e.target);
-      removeCompleteTask(parent);
-
-      console.log(dateTime.value);
+      styleCompleteTask(task, id, e.target);
+      removeCompleteTask(task);
     }
   }
 
@@ -313,13 +314,13 @@ const tasks = [
 
   // Set deadline
 
-  function setDeadline(parent, time, element, completed) {
+  function setDeadline(task, time, deadline) {
     let countDownDate = new Date(time);
 
     if (countDownDate == "Invalid Date") {
-      element.textContent = "Timeless";
-      element.classList.add("text-muted");
-      element.classList.remove("border");
+      deadline.textContent = "Timeless";
+      deadline.classList.add("text-muted");
+      deadline.classList.remove("border");
       return;
     }
 
@@ -337,15 +338,17 @@ const tasks = [
         seconds = `0${seconds}`;
       }
 
-      element.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      deadline.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 
       if (distance < 86400000) {
-        element.classList.add("alert-warning", "border-warning");
+        deadline.classList.add("alert-warning", "border-warning");
       }
 
-      stylingExpiredTask(distance, countDownFunction, element, parent);
+      console.log(1);
 
-      stopIntervalCompletedTask(element, completed);
+      stylingExpiredTask(distance, countDownFunction, deadline, task);
+
+      stopIntervalCompletedTask(task, deadline, countDownFunction);
     }, 1000);
   }
 
@@ -356,25 +359,38 @@ const tasks = [
     return distance;
   }
 
-  function stylingExpiredTask(distance, timeFunc, elem, parent) {
+  function stopIntervalCompletedTask(task, deadline, funcInterval) {
+    if (task.classList.contains("list-group-item-success")) {
+      clearInterval(funcInterval);
+      deadline.textContent = "Completed";
+    }
+  }
+
+  function stylingExpiredTask(distance, timeFunc, deadline, task) {
     if (distance < 0) {
       clearInterval(timeFunc);
-      elem.textContent = "EXPIRED";
-      elem.classList.add("alert-danger", "border-danger");
-      parent.classList.add("list-group-item-dark");
-      parent.classList.remove("list-group-item-success");
+      deadline.textContent = "EXPIRED";
+      deadline.classList.add("alert-danger", "border-danger");
+      task.classList.remove("list-group-item-success");
+      task.classList.add("list-group-item-dark");
 
-      parent.parentElement.append(parent);
+      task.parentElement.append(task);
 
       return;
     }
   }
 
-  function stopIntervalCompletedTask(element, completed, timeFunc) {
-    if (completed) {
-      clearInterval(timeFunc);
-      element.textContent = "Completed";
-      return;
+  function completeTask(task, deadline) {
+    if (!task.classList.contains("list-group-item-success")) {
+      deadline.classList.remove(
+        "alert-danger",
+        "border-danger",
+        "alert-warning",
+        "border-warning"
+      );
+      deadline.textContent = "Completed";
+    } else if (task.classList.contains("list-group-item-success")) {
+      deadline.textContent = "Timeless";
     }
   }
 })(tasks);
