@@ -24,7 +24,7 @@ ____
 #### Демонстрация работы приложения    
 ____    
 
-![image]()
+![image](https://github.com/DevMinrat/to-do/blob/master/MiKtLtz0O0.gif)
 
 #### Ссылки    
 ____   
